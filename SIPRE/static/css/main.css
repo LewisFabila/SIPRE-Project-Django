@@ -260,8 +260,6 @@ tr:hover td{
     align-items: center;
 }
 
-
-
 /* LOGIN Y MENU CARTA */
 .login-carta, .menu-carta{
     width: 350px;
@@ -409,7 +407,15 @@ tr:hover td{
     margin-top: 10%;
 }
 
-.contenedor-menu:hover, .contenedor-submenu:hover{
+.contenedor-menu:hover, .contenedor-submenu:hover, .contenedor-menu-finanzas:hover{
+    transition: 3s;
+}
+
+/* MENU FINANZAS */
+.contenedor-menu-finanzas{
+    grid-template-columns: repeat(2, 1fr);
+    display: grid;
+    gap: 2rem;
     transition: 3s;
 }
 
