@@ -1,7 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,14 +13,15 @@
 
     <body>
         <form class="login-carta" action="" method="POST">
+            {% csrf_token %}
             <img class="img-align" src="{% static 'img/profile.png' %}" width="60%" alt=""><br>
             <a class="texto-simple"><i class="bi bi-person-fill"></i> Usuario</a>
             <div>
-                <input type="text" class="barra" name="usuario" id="usuario" placeholder="Ingresa un Usuario">
+                <input type="text" class="barra" name="usuario" id="usuario" placeholder="Ingresa un Usuario" required>
             </div><br>
             <a class="texto-simple"><i class="bi bi-lock-fill"></i> Contraseña</a>
             <div>
-                <input type="password" class="barra" name="password" id="password" placeholder="Ingresa una Contraseña">
+                <input type="password" class="barra" name="password" id="password" placeholder="Ingresa una Contraseña" required>
             </div><br>
             <div class="op-texto-white"> Mostrar Contraseña:</div>
             <div class="checkbox-wrapper-39">
@@ -36,7 +36,9 @@
             </div>
         </form>
         <div class="contenedor-elementos">
-            <div id="mensaje-error" class="error-texto"></div>
+            {% if error %}
+                <div id="mensaje-error" class="error-texto">{{ error }}</div>
+            {% endif %}
         </div>
         <footer class="texto-footer">¡Bienvenido a mi sistema desarrollado con Python / Django!</footer>
     </body>
@@ -50,15 +52,5 @@
                 tipo.type = "password";
             }
         }
-
-        function loginError() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const error = urlParams.get('error');
-            if (error) {
-                document.getElementById('mensaje-error').textContent = 'EL NOMBRE DE USUARIO O CONTRASEÑA ES INCORRECTO';
-                document.getElementById('mensaje-error').style.display = 'block';
-            }
-        }
-        window.onload = loginError;
     </script>
 </html>
