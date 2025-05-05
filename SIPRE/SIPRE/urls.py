@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from login.views import login, menu_admin, menu_finanzas, menu_contabilidad, menu_general, cerrar_sesion
-from usuarios.views import lista_usuarios, eliminar_usuarios
+from usuarios.views import lista_usuarios, eliminar_usuarios, registrar_usuario
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -29,4 +29,5 @@ urlpatterns = [
     path('logout/', cerrar_sesion, name='logout'),
     path('usuarios/', lista_usuarios, name='lista-usuarios'),
     path('usuarios/eliminar-multiples/', eliminar_usuarios, name='eliminar-usuarios'),
+    path('usuarios/registrar/', registrar_usuario, name='registrar-usuario'),
 ]
