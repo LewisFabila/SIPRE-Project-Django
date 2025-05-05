@@ -16,7 +16,7 @@
                 <a class="texto-simple"><i class="bi bi-list"></i> MENU DE ADMINISTRADOR</a>
                 <ul>
                     {% if request.user.is_authenticated %}
-                    <li><a class="op-texto"><i class="bi bi-person-circle"></i> {{ request.user.username }}</li>
+                    <li><a class="op-texto"><i class="bi bi-person-circle"></i> {{ request.user.username }}</a></li>
                     <li><a class="op-texto" href="{% url 'logout' %}"><i class="bi bi-door-open-fill"></i> CERRAR SESION</a></li>
                     {% else %}
                     <li><a class="op-texto" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i> INICIA SESION</a></li>
@@ -26,7 +26,14 @@
         </header>
         <div>
             <ul class="contenedor-menu">
-                <li><section class="menu-carta" onclick="location.href='usuarios.php'"><img class="img-align" src="{% static 'img/reg_per.png' %}" width="60%" alt=""><a class="texto-carta">REGISTRO DE PERSONAL</a></section></li>
+                <li>
+                    <a href="{% url 'lista-usuarios' %}">
+                      <section class="menu-carta">
+                        <img class="img-align" src="{% static 'img/reg_per.png' %}" width="60%" alt="">
+                        <span class="texto-carta">REGISTRO DE PERSONAL</span>
+                      </section>
+                    </a>
+                  </li>
                 <li><section class="menu-carta" onclick="location.href='menu-admin_historico.php'"><img class="img-align" src="{% static 'img/reg_pre.png' %}" width="60%" alt=""><a class="texto-carta">PRESUPUESTOS</a></section></li>
             </ul>
         </div>
