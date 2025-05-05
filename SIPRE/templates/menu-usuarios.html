@@ -76,7 +76,7 @@
                             <td><div>
                                 {{ usuario.password|slice:":15" }}...</div></td>  <!-- Hash, no texto plano -->
                             </div><td>
-                                <a href="" class="texto-simple-bla" onclick=""><div><span style="color: white;"><i class="bi bi-pencil-square"></i></span></a>
+                                <a class="texto-simple-bla" onclick="abrirEditModal({{ usuario.id }})"><div><span style="color: white; cursor: pointer;" id="openEditModal"><i class="bi bi-pencil-square"></i></span></a>
                             </div></td>
                             <td>
                                 <div class="checkbox-wrapper-39">
@@ -92,9 +92,10 @@
             </table><br>
         </form>
 
+        <!-- Estructura de Modal de Agregar Usuarios -->
         <div id="AddModal" class="modal">
             <div class="modal-contenedor">
-                <span class="cerrarAdd" onclick="cerrarModal()">&times;</span><br>
+                <span class="cerrarAdd" onclick="cerrarModal('AddModal')">&times;</span><br>
                 <form method="POST" action="{% url 'registrar-usuario' %}" autocomplete="on" id="AddForm" onsubmit="return validarContraseña('AddForm')">
                     {% csrf_token %}
                     <div>
@@ -103,17 +104,17 @@
         
                     <div>
                         <label class="texto-simple-whi"><i class="bi bi-person-fill"></i> NOMBRE</label>
-                        <input type="text" class="barra-registro" name="nombre" placeholder="">
+                        <input type="text" class="barra-registro" name="nombre" placeholder="" required>
                     </div><br>
         
                     <div>
                         <label class="texto-simple-whi"><i class="bi bi-person-circle"></i> USUARIO</label>
-                        <input type="text" class="barra-registro" name="usuario" placeholder="">
+                        <input type="text" class="barra-registro" name="usuario" placeholder="" required>
                     </div><br>
         
                     <div>
                         <label class="texto-simple-whi"><i class="bi bi-pin-map-fill"></i> GRUPO</label>
-                        <select name="grupo" class="boton-listado-registro">
+                        <select name="grupo" class="boton-listado-registro" required>
                             <option value="" disabled selected>--SELECCIONAR--</option>
                             {% for group in grupos %}
                                 <option value="{{ group.id }}">{{ group.name }}</option>
@@ -123,7 +124,7 @@
         
                     <div>
                         <label class="texto-simple-whi"><i class="bi bi-key-fill"></i> CONTRASEÑA</label>
-                        <input type="password" class="barra-registro" name="password" id="passwordAdd" placeholder="">
+                        <input type="password" class="barra-registro" name="password" id="passwordAdd" placeholder="" required>
                     </div><br>
 
                     <div class="texto-simple-whi"> Mostrar Contraseña:</div>
@@ -141,8 +142,51 @@
             </div>
         </div>
         
+        <!-- Estructura de Modal de Editar Usuarios -->
+        <div id="EditModal" class="modal">
+            <div class="modal-contenedor">
+                <span class="cerrarEdit" onclick="cerrarModal('EditModal')">&times;</span><br>
+                <form method="POST" action="{% url 'actualizar-usuario' %}" autocomplete="on" id="EditForm">
+                    {% csrf_token %}
+                    <div>
+                        <label class="texto-simple-whi">EDITAR REGISTRO</label>
+                    </div><br>
+        
+                    <div>
+                        <label class="texto-simple-whi"><i class="bi bi-person-fill"></i> NOMBRE</label>
+                        <input type="text" class="barra-registro" name="nombreEdit" placeholder="" required>
+                    </div><br>
+        
+                    <div>
+                        <label class="texto-simple-whi"><i class="bi bi-person-circle"></i> USUARIO</label>
+                        <input type="text" class="barra-registro" name="usuarioEdit" placeholder="" required>
+                    </div><br>
+        
+                    <div>
+                        <label class="texto-simple-whi"><i class="bi bi-pin-map-fill"></i> GRUPO</label>
+                        <select name="grupoEdit" class="boton-listado-registro" required>
+                            <option value="" disabled selected>--SELECCIONAR--</option>
+                            {% for group in grupos %}
+                                <option value="{{ group.id }}">{{ group.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div><br>
+
+                    <div>
+                        <label class="texto-simple-whi"><i class="bi bi-lock-fill"></i> NUEVA CONTRASEÑA</label>
+                        <input type="password" class="barra-registro" name="passwordEdit" placeholder="Opcional">
+                    </div><br>
+
+                    <div class="contenedor-botones-login">
+                        <input class="boton-op" type="submit" value="ACTUALIZAR">
+                        <input class="boton-op" type="reset" value="BORRAR">
+                    </div>
+                </form>
+            </div>
+        </div>
+
         <script>
-            // Funcion de Modal para Agregar Usuarios
+            // FUNCION DE MODAL PARA AGREGAR USUARIOS
             function mostrarPassAdd() {
                 const input = document.getElementById("passwordAdd");
                 input.type = input.type === "password" ? "text" : "password";
@@ -152,16 +196,51 @@
             document.getElementById("openAddModal").onclick = function() {
                 document.getElementById("AddModal").style.display = "block";
             };
-            
-            // Cerrar mediante el "x"
-            function cerrarModal() {
-                document.getElementById("AddModal").style.display = "none";
+
+            // FUNCION DE MODAL PARA EDITAR USUARIOS
+            function abrirEditModal(userId) {
+                fetch(`/usuarios/obtener/${userId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Llenar campos del formulario
+                        document.querySelector('[name="nombreEdit"]').value = data.nombre;
+                        document.querySelector('[name="usuarioEdit"]').value = data.usuario;
+                        document.querySelector('[name="grupoEdit"]').value = data.grupo;
+                        // Agrega ID oculto para usar al enviar
+                        if (!document.getElementById('idEdit')) {
+                            const input = document.createElement('input');
+                            input.type = 'hidden';
+                            input.name = 'user_id';
+                            input.id = 'idEdit';
+                            input.value = data.id;
+                            document.getElementById('EditForm').appendChild(input);
+                        } else {
+                            document.getElementById('idEdit').value = data.id;
+                        }
+                        // Mostrar modal
+                        document.getElementById("EditModal").style.display = "block";
+                    });
             }
-        
-            // Cerrar al hacer clic fuera
+
+            // Cerrar modales al hacer clic fuera de ellos
             window.onclick = function(e) {
-                const modal = document.getElementById("AddModal");
-                if (e.target == modal) modal.style.display = "none";
+                // Modal de editar
+                const editModal = document.getElementById("EditModal");
+                if (e.target == editModal) {
+                    editModal.style.display = "none";
+                }
+
+                // Modal de agregar
+                const addModal = document.getElementById("AddModal");
+                if (e.target == addModal) {
+                    addModal.style.display = "none";
+                }
+            };
+
+            // Cerrar modales al hacer clic en la "x"
+            function cerrarModal(modalType) {
+                const modal = document.getElementById(modalType);
+                modal.style.display = "none";
             }
         </script>
         
