@@ -5,6 +5,8 @@ from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.hashers import make_password
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 # Create your views here.
 
@@ -12,7 +14,55 @@ from django.views.decorators.http import require_POST
 def lista_usuarios(request):
     usuarios = User.objects.all().select_related()  # Optimiza consultas
     grupos = Group.objects.all()
-    return render(request, "menu-usuarios.html", {"usuarios": usuarios, "grupos": grupos,})
+
+    # Peticiones de Busqueda usando GET
+    busqueda = request.GET.get('busqueda', '')
+    num_registros = request.GET.get('num_registros', 10)
+    pagina = request.GET.get('page', 1)
+    
+    # Filtra los usuarios buscando estos campos:
+    usuarios = User.objects.filter(
+        Q(id__icontains=busqueda) |
+        Q(username__icontains=busqueda) |
+        Q(first_name__icontains=busqueda) |
+        Q(last_name__icontains=busqueda) |
+        Q(groups__name__icontains=busqueda)
+    ).distinct()
+
+    # Filtra el numero de usuarios de acuerdo al apartado "MOSTRAR"
+    paginator = Paginator(usuarios, num_registros)
+    usuarios_paginados = paginator.get_page(pagina)
+
+    return render(request, 'menu-usuarios.html', {
+        'usuarios': usuarios_paginados,
+        'num_registros': num_registros,
+        'busqueda': busqueda,
+        'grupos': grupos
+    })
+
+@login_required
+def buscar_usuarios(request):
+    busqueda = request.GET.get('q', '')
+    usuarios = User.objects.filter(
+        Q(id__icontains=busqueda) |
+        Q(username__icontains=busqueda) |
+        Q(first_name__icontains=busqueda) |
+        Q(last_name__icontains=busqueda) |
+        Q(groups__name__icontains=busqueda)
+    ).distinct()
+
+    data = []
+    for usuario in usuarios:
+        grupos = [g.name for g in usuario.groups.all()]
+        data.append({
+            'id': usuario.id,
+            'nombre': usuario.get_short_name(),
+            'username': usuario.username,
+            'grupos': ', '.join(grupos) if grupos else 'Sin grupo',
+            'password': usuario.password[:15] + '...',
+        })
+
+    return JsonResponse({'usuarios': data})
 
 @login_required
 def registrar_usuario(request):
@@ -69,4 +119,8 @@ def actualizar_usuario(request):
         user.set_password(nueva_password)
 
     user.save()
-    return redirect('lista-usuarios')
+    referer = request.META.get('HTTP_REFERER', None)
+    if referer:
+        return redirect(referer)
+    else:
+        return redirect('lista-usuarios')

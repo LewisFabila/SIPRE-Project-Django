@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from login.views import login, menu_admin, menu_finanzas, menu_contabilidad, menu_general, cerrar_sesion
-from usuarios.views import lista_usuarios, eliminar_usuarios, registrar_usuario, obtener_usuario, actualizar_usuario
+from usuarios.views import lista_usuarios, eliminar_usuarios, registrar_usuario, obtener_usuario, actualizar_usuario, buscar_usuarios
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -32,4 +32,5 @@ urlpatterns = [
     path('usuarios/registrar/', registrar_usuario, name='registrar-usuario'),
     path('usuarios/obtener/<int:user_id>/', obtener_usuario, name='obtener-usuario'),
     path('usuarios/actualizar/', actualizar_usuario, name='actualizar-usuario'),
+    path('usuarios/buscar/', buscar_usuarios, name='buscar-usuarios'),
 ]
