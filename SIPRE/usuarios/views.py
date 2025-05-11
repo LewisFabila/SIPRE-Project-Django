@@ -12,44 +12,62 @@ from django.db.models import Q
 
 @login_required
 def lista_usuarios(request):
-    usuarios = User.objects.all().select_related()  # Optimiza consultas
+    
     grupos = Group.objects.all()
 
-    # Peticiones de Busqueda usando GET
+    # Peticiones de búsqueda y paginación
     busqueda = request.GET.get('busqueda', '')
-    num_registros = request.GET.get('num_registros', 10)
+    num_registros = int(request.GET.get('num_registros', 10))
     pagina = request.GET.get('page', 1)
-    
-    # Filtra los usuarios buscando estos campos:
+    orden = request.GET.get('orden', 'id')
+    direccion = request.GET.get('direccion', 'asc')
+
+    # Filtrado
+    campos_validos = ['id', 'first_name', 'username', 'groups__name']
+
+    # Si el campo no es válido, se usa 'id' por defecto
+    orden_valido = orden if orden in campos_validos else 'id'
+
+    # Si es descendente, agrega el prefijo "-"
+    orden_real = f"-{orden_valido}" if direccion == 'desc' else orden_valido
+
+    # Filtrado y ordenamiento
     usuarios = User.objects.filter(
         Q(id__icontains=busqueda) |
         Q(username__icontains=busqueda) |
         Q(first_name__icontains=busqueda) |
         Q(last_name__icontains=busqueda) |
         Q(groups__name__icontains=busqueda)
-    ).distinct()
+    ).distinct().prefetch_related('groups').order_by(orden_real)
 
-    # Filtra el numero de usuarios de acuerdo al apartado "MOSTRAR"
+    # Paginación
     paginator = Paginator(usuarios, num_registros)
     usuarios_paginados = paginator.get_page(pagina)
 
-    return render(request, 'menu-usuarios.html', {
+    return render(request, 'submenu-usuarios.html', {
         'usuarios': usuarios_paginados,
-        'num_registros': num_registros,
+        'num_registros': str(num_registros),
         'busqueda': busqueda,
-        'grupos': grupos
+        'grupos': grupos,
+        'orden': orden,
+        'direccion': direccion,
     })
 
 @login_required
 def buscar_usuarios(request):
     busqueda = request.GET.get('q', '')
-    usuarios = User.objects.filter(
-        Q(id__icontains=busqueda) |
-        Q(username__icontains=busqueda) |
-        Q(first_name__icontains=busqueda) |
-        Q(last_name__icontains=busqueda) |
-        Q(groups__name__icontains=busqueda)
-    ).distinct()
+    num_registros = int(request.GET.get('num_registros', 10))
+    
+    if busqueda.strip() == '':
+        usuarios = User.objects.all().order_by('id')[:num_registros]
+    else:
+        usuarios = User.objects.filter(
+            Q(id__icontains=busqueda) |
+            Q(username__icontains=busqueda) |
+            Q(first_name__icontains=busqueda) |
+            Q(last_name__icontains=busqueda) |
+            Q(groups__name__icontains=busqueda)
+        ).distinct()
 
     data = []
     for usuario in usuarios:

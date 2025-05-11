@@ -34,6 +34,9 @@ def login(request): #Vista del Login
 def menu_admin(request):
     return render(request, "menu-admin.html", {"user": request.user})
 
+def submenu_presupuestos_1(request):
+    return render(request, "submenu-presupuestos-1.html", {"user": request.user})
+
 @login_required
 def menu_finanzas(request):
     return render(request, "menu-finanzas.html", {"user": request.user})

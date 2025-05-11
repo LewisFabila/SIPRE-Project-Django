@@ -16,21 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from login.views import login, menu_admin, menu_finanzas, menu_contabilidad, menu_general, cerrar_sesion
+from login.views import login, cerrar_sesion, menu_admin, menu_finanzas, menu_contabilidad, menu_general, submenu_presupuestos_1
 from usuarios.views import lista_usuarios, eliminar_usuarios, registrar_usuario, obtener_usuario, actualizar_usuario, buscar_usuarios
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('login/', login, name='login'),
+    path('logout/', cerrar_sesion, name='logout'),
     path('menu_admin/', menu_admin, name='menu-admin'),
     path('menu_finanzas/', menu_finanzas, name='menu-finanzas'),
     path('menu_contabilidad/', menu_contabilidad, name='menu-contabilidad'),
     path('menu_general/', menu_general, name='menu-general'),
-    path('logout/', cerrar_sesion, name='logout'),
     path('usuarios/', lista_usuarios, name='lista-usuarios'),
     path('usuarios/eliminar-multiples/', eliminar_usuarios, name='eliminar-usuarios'),
     path('usuarios/registrar/', registrar_usuario, name='registrar-usuario'),
     path('usuarios/obtener/<int:user_id>/', obtener_usuario, name='obtener-usuario'),
     path('usuarios/actualizar/', actualizar_usuario, name='actualizar-usuario'),
     path('usuarios/buscar/', buscar_usuarios, name='buscar-usuarios'),
+    path('submenu_pre_1/', submenu_presupuestos_1, name='submenu-pre-1')
 ]

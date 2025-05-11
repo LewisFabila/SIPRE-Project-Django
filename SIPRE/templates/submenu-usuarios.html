@@ -30,14 +30,12 @@
 
         <!-- Estructura de Filtrado -->
         <div class="contenedor-filtrado">
-            <form method="get">
+            <div>
+                <div><label class="texto-simple-whi" for="busqueda">BUSQUEDA: </label></div>
+                <input class="barra-busqueda" type="text" name="busqueda" id="busqueda" value="{{ busqueda }}" autocomplete="off">
+            </div>
+            <form method="get" action=".">
                 {% csrf_token %}
-                <div>
-                    <div><label class="texto-simple-whi" for="busqueda">BUSQUEDA: </label></div>
-                    <input class="barra-busqueda" type="text" name="busqueda" id="busqueda" value="{{ busqueda }}">
-                </div>
-            </form>
-            <form method="get">
                 <div>
                     <label for="num_registros" class="texto-simple-whi">MOSTRAR: </label>
                     <select name="num_registros" id="num_registros" class="boton-listado" onchange="this.form.submit()">
@@ -56,11 +54,47 @@
             <table>
                     <thead>
                         <tr>
-                            <th class="ord asc">ID <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="ord asc">NOMBRE <i class="bi bi-arrow-down-up"></i></th> 
-                            <th class="ord asc">USUARIO <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="ord asc">AREA <i class="bi bi-arrow-down-up"></i></th>
-                            <th class="ord asc">PASSWORD (Hash) <i class="bi bi-arrow-down-up"></i></th>
+                            <th>
+                                <a href="?orden=id&direccion={% if orden == 'id' and direccion == 'asc' %}desc{% else %}asc{% endif %}&busqueda={{ busqueda }}&num_registros={{ num_registros }}">
+                                    ID
+                                    {% if orden == 'id' %}
+                                        <i class="bi {% if direccion == 'asc' %}bi-arrow-up{% else %}bi-arrow-down{% endif %}"></i>
+                                    {% else %}
+                                        <i class="bi bi-arrow-down-up"></i>
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="?orden=first_name&direccion={% if orden == 'first_name' and direccion == 'asc' %}desc{% else %}asc{% endif %}&busqueda={{ busqueda }}&num_registros={{ num_registros }}">
+                                    NOMBRE
+                                    {% if orden == 'first_name' %}
+                                        <i class="bi {% if direccion == 'asc' %}bi-arrow-up{% else %}bi-arrow-down{% endif %}"></i>
+                                    {% else %}
+                                        <i class="bi bi-arrow-down-up"></i>
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="?orden=username&direccion={% if orden == 'username' and direccion == 'asc' %}desc{% else %}asc{% endif %}&busqueda={{ busqueda }}&num_registros={{ num_registros }}">
+                                    USUARIO
+                                    {% if orden == 'username' %}
+                                        <i class="bi {% if direccion == 'asc' %}bi-arrow-up{% else %}bi-arrow-down{% endif %}"></i>
+                                    {% else %}
+                                        <i class="bi bi-arrow-down-up"></i>
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th>
+                                <a href="?orden=groups__name&direccion={% if orden == 'groups__name' and direccion == 'asc' %}desc{% else %}asc{% endif %}&busqueda={{ busqueda }}&num_registros={{ num_registros }}">
+                                    ÁREA
+                                    {% if orden == 'groups__name' %}
+                                        <i class="bi {% if direccion == 'asc' %}bi-arrow-up{% else %}bi-arrow-down{% endif %}"></i>
+                                    {% else %}
+                                        <i class="bi bi-arrow-down-up"></i>
+                                    {% endif %}
+                                </a>
+                            </th>
+                            <th>PASSWORD (Hash)</th>
                             <th>EDITAR</th>
                             <th>ELIMINAR</th>
                         </tr>
@@ -94,38 +128,39 @@
             </table><p></p>
 
             <!-- Estructura de Numeros de Paginacion -->
-            <div>
+            <div id="paginacion">
+                {% with url_base="&num_registros="|add:num_registros|add:"&busqueda="|add:busqueda|add:"&orden="|add:orden|add:"&direccion="|add:direccion %}
                 <ul>
                     {% if usuarios.has_previous %}
-                        <li><a class="op-texto" href="?page=1&num_registros={{ num_registros }}"><i class="bi bi-chevron-double-left"></i> Primero</a></li>
-                        <li><a class="op-texto" href="?page={{ usuarios.previous_page_number }}&num_registros={{ num_registros }}"><i class="bi bi-chevron-left"></i> Anterior</a></li>
+                        <li><a class="op-texto" href="?page=1{{ url_base }}"><i class="bi bi-chevron-double-left"></i> Primero</a></li>
+                        <li><a class="op-texto" href="?page={{ usuarios.previous_page_number }}{{ url_base }}"><i class="bi bi-chevron-left"></i> Anterior</a></li>
                     {% endif %}
             
                     {% for num in usuarios.paginator.page_range %}
                         {% if usuarios.number <= 5 %}
                             {% if num <= 10 %}
                                 <li>
-                                    <a href="?page={{ num }}&num_registros={{ num_registros }}"
-                                       class="{% if usuarios.number == num %}no-paginacion-active{% else %}no-paginacion{% endif %}">
-                                       {{ num }}
+                                    <a href="?page={{ num }}{{ url_base }}"
+                                    class="{% if usuarios.number == num %}no-paginacion-active{% else %}no-paginacion{% endif %}">
+                                    {{ num }}
                                     </a>
                                 </li>
                             {% endif %}
                         {% elif usuarios.number > usuarios.paginator.num_pages|add:-5 %}
                             {% if num > usuarios.paginator.num_pages|add:-10 %}
                                 <li>
-                                    <a href="?page={{ num }}&num_registros={{ num_registros }}"
-                                       class="{% if usuarios.number == num %}no-paginacion-active{% else %}no-paginacion{% endif %}">
-                                       {{ num }}
+                                    <a href="?page={{ num }}{{ url_base }}"
+                                    class="{% if usuarios.number == num %}no-paginacion-active{% else %}no-paginacion{% endif %}">
+                                    {{ num }}
                                     </a>
                                 </li>
                             {% endif %}
                         {% else %}
                             {% if num >= usuarios.number|add:-4 and num <= usuarios.number|add:5 %}
                                 <li>
-                                    <a href="?page={{ num }}&num_registros={{ num_registros }}"
-                                       class="{% if usuarios.number == num %}no-paginacion-active{% else %}no-paginacion{% endif %}">
-                                       {{ num }}
+                                    <a href="?page={{ num }}{{ url_base }}"
+                                    class="{% if usuarios.number == num %}no-paginacion-active{% else %}no-paginacion{% endif %}">
+                                    {{ num }}
                                     </a>
                                 </li>
                             {% endif %}
@@ -133,10 +168,11 @@
                     {% endfor %}                
             
                     {% if usuarios.has_next %}
-                        <li><a class="op-texto"href="?page={{ usuarios.next_page_number }}&num_registros={{ num_registros }}">Siguiente <i class="bi bi-chevron-right"></i></a></li>
-                        <li><a class="op-texto"href="?page={{ usuarios.paginator.num_pages }}&num_registros={{ num_registros }}">Ultimo <i class="bi bi-chevron-double-right"></i></a></li>
+                        <li><a class="op-texto"href="?page={{ usuarios.next_page_number }}{{ url_base }}">Siguiente <i class="bi bi-chevron-right"></i></a></li>
+                        <li><a class="op-texto"href="?page={{ usuarios.paginator.num_pages }}{{ url_base }}">Ultimo <i class="bi bi-chevron-double-right"></i></a></li>
                     {% endif %}
                 </ul>
+                {% endwith %}
             </div>            
         </form>
 
@@ -161,7 +197,7 @@
                     </div><br>
         
                     <div>
-                        <label class="texto-simple-whi"><i class="bi bi-pin-map-fill"></i> GRUPO</label>
+                        <label class="texto-simple-whi"><i class="bi bi-collection-fill"></i> GRUPO</label>
                         <select name="grupo" class="boton-listado-registro" required>
                             <option value="" disabled selected>--SELECCIONAR--</option>
                             {% for group in grupos %}
@@ -211,7 +247,7 @@
                     </div><br>
         
                     <div>
-                        <label class="texto-simple-whi"><i class="bi bi-pin-map-fill"></i> GRUPO</label>
+                        <label class="texto-simple-whi"><i class="bi bi-collection-fill"></i> GRUPO</label>
                         <select name="grupoEdit" class="boton-listado-registro" required>
                             <option value="" disabled selected>--SELECCIONAR--</option>
                             {% for group in grupos %}
@@ -294,16 +330,35 @@
             // FUNCION DE BUSQUEDA EN TIEMPO REAL
             document.addEventListener('DOMContentLoaded', function () {
                 const inputBusqueda = document.getElementById('busqueda');
-                inputBusqueda.addEventListener('keyup', function () {
+                const selectNumRegistros = document.getElementById('num_registros');
+                const tbody = document.getElementById('tabla-usuarios');
+
+                // Función para actualizar la tabla de usuarios
+                function actualizarTabla() {
                     const query = inputBusqueda.value;
-            
-                    fetch(`/usuarios/buscar/?q=${encodeURIComponent(query)}`)
+                    const numRegistros = selectNumRegistros.value;
+                    const paginacion = document.getElementById('paginacion');
+
+                    // Muestra u Oculta la paginacion de acuerdo a si hay una busqueda activa
+                    if (query.trim() === '') {
+                        paginacion.style.display = 'grid'; // Mostrar
+                    } else {
+                        paginacion.style.display = 'none';  // Ocultar
+                    }
+
+                    fetch(`/usuarios/buscar/?q=${encodeURIComponent(query)}&num_registros=${encodeURIComponent(numRegistros)}`)
                         .then(response => response.json())
                         .then(data => {
-                            const tbody = document.getElementById('tabla-usuarios');
                             tbody.innerHTML = '';
-                            
-                            // Devuelve la fila para cada usuario que coincida
+
+                            if (data.usuarios.length === 0) {
+                                const filaVacia = document.createElement('tr');
+                                filaVacia.innerHTML = `<td colspan="7" style="text-align: center;">Upss... Parece que te has perdido.</td>`;
+                                tbody.appendChild(filaVacia);
+                                return;
+                            }
+
+                            // Devuelve los registros que coincidan con la busqueda
                             data.usuarios.forEach(usuario => {
                                 const fila = document.createElement('tr');
                                 fila.innerHTML = `
@@ -311,8 +366,12 @@
                                     <td><div>${usuario.nombre}</div></td>
                                     <td><div>${usuario.username}</div></td>
                                     <td><div>${usuario.grupos}</div></td>
-                                    <td><div>${usuario.password}/div></td>
-                                    <td><a onclick="abrirEditModal(${usuario.id})"><div><span style="color: white; cursor: pointer;" id="openEditModal"><i class="bi bi-pencil-square"></i></span></a></div></td>
+                                    <td><div>${usuario.password}</div></td>
+                                    <td><a onclick="abrirEditModal(${usuario.id})">
+                                            <div><span style="color: white; cursor: pointer;" id="openEditModal">
+                                                <i class="bi bi-pencil-square"></i></span>
+                                            </div>
+                                        </a></td>
                                     <td>
                                         <div class="checkbox-wrapper-39">
                                             <label>
@@ -325,9 +384,20 @@
                                 tbody.appendChild(fila);
                             });
                         });
+                }
+
+                // Búsqueda en tiempo real al escribir
+                inputBusqueda.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter') {
+                        event.preventDefault(); // Evita que un "Enter" recargue la página
+                    }
                 });
+
+                inputBusqueda.addEventListener('keyup', actualizarTabla);
+
+                // Actualización al cambiar el número de registros
+                selectNumRegistros.addEventListener('change', actualizarTabla);
             });
         </script>
-
     </body>
 </html>
