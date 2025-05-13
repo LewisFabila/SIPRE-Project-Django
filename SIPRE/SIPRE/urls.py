@@ -33,5 +33,5 @@ urlpatterns = [
     path('usuarios/obtener/<int:user_id>/', obtener_usuario, name='obtener-usuario'),
     path('usuarios/actualizar/', actualizar_usuario, name='actualizar-usuario'),
     path('usuarios/buscar/', buscar_usuarios, name='buscar-usuarios'),
-    path('submenu_pre_1/', submenu_presupuestos_1, name='submenu-pre-1')
+    path('submenu_pre_1/', submenu_presupuestos_1, name='submenu-pre-1'),
 ]
